@@ -3,7 +3,7 @@
  * @Email:     thepoy@163.com
  * @File Name: pool.go
  * @Created:   2022-05-23 15:31:38
- * @Modified:  2022-05-23 15:42:17
+ * @Modified:  2022-05-23 15:45:24
  */
 
 package pool
@@ -37,7 +37,7 @@ const (
 
 // Task task to-do
 type Task struct {
-	Handle func(args ...interface{})
+	Handle func(args ...interface{}) interface{}
 	Args   []interface{}
 }
 
