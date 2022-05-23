@@ -1,8 +1,6 @@
 github.com/coreos/go-systemd/v22 v22.3.2/go.mod h1:Y58oyj3AT4RCenI/lSvhwexgC+NSVTIJ3seZv2GcEnc=
 github.com/go-predator/log v0.0.0-20220523074050-01ad78a75b3f h1:0Nt/e0By/ClBnnJq+jbGsUWNVIVSbfqYNCE9Z6p7TY0=
 github.com/go-predator/log v0.0.0-20220523074050-01ad78a75b3f/go.mod h1:TdZqX+mXzn9Xb+7QnjpCFZLYU3poUG64+Ct2+DnlRDU=
-github.com/go-predator/predator v0.2.4 h1:7uqaWK+fu74iOf0NaHFsmho0qVeuLns9i+m2H6Rg/MQ=
-github.com/go-predator/predator v0.2.4/go.mod h1:f1y+Hbcd5EOmHYMO/mFgF5OBJMz86rQhG05gnAztJtU=
 github.com/godbus/dbus/v5 v5.0.4/go.mod h1:xhWf0FNVPg57R7Z0UbKHbJfkEywrmjJnf7w5xrFpKfA=
 github.com/pkg/errors v0.9.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
 github.com/rs/xid v1.3.0/go.mod h1:trrq9SKmegXys3aeAKXMUTdJsYXVwGY3RLcfgqegfbg=
