@@ -3,7 +3,7 @@
  * @Email:     thepoy@163.com
  * @File Name: pool.go
  * @Created:   2022-05-23 15:31:38
- * @Modified:  2022-05-24 08:57:36
+ * @Modified:  2022-05-24 09:13:05
  */
 
 package pool
@@ -195,6 +195,12 @@ func (p *Pool) run() {
 
 		for task := range p.chTask {
 			task.handle.Call(task.args)
+			// r := task.handle.Call(task.args)
+
+			// returns := make([]interface{}, 0, len(r))
+			// for _, i := range r {
+			// 	returns = append(returns, i.Interface())
+			// }
 		}
 	}()
 
