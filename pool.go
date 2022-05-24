@@ -3,7 +3,7 @@
  * @Email:     thepoy@163.com
  * @File Name: pool.go
  * @Created:   2022-05-23 15:31:38
- * @Modified:  2022-05-24 08:23:34
+ * @Modified:  2022-05-24 08:57:36
  */
 
 package pool
@@ -11,6 +11,7 @@ package pool
 import (
 	"errors"
 	"fmt"
+	"reflect"
 	"runtime/debug"
 	"sync"
 	"sync/atomic"
@@ -27,6 +28,12 @@ var (
 	ErrPoolAlreadyClosed = errors.New("pool already closed")
 	// only the error type can be captured and processed
 	ErrUnkownType = errors.New("recover only allows error type, but an unknown type is received")
+	// thrown when `Handle` is not a function type
+	ErrNotFunc = errors.New("`Handle` only accepts function types")
+)
+
+var (
+	errorType = reflect.TypeOf((*error)(nil)).Elem()
 )
 
 type Status uint8
@@ -39,8 +46,8 @@ const (
 
 // Task task to-do
 type Task struct {
-	Handle func(args ...interface{}) interface{}
-	Args   []interface{}
+	handle reflect.Value
+	args   []reflect.Value
 }
 
 // Pool task pool
@@ -81,6 +88,27 @@ func NewPool(capacity uint32) (*Pool, error) {
 	}
 
 	return p, nil
+}
+
+// NewTask creates a new pool task
+func NewTask(handle interface{}, args ...interface{}) Task {
+	f := reflect.ValueOf(handle)
+	if f.Kind() != reflect.Func {
+		panic("the handle is not a function")
+	}
+	if !goodFunc(f.Type()) {
+		panic(fmt.Errorf("can't install function with %d results", f.Type().NumOut()))
+	}
+
+	v := make([]reflect.Value, 0, len(args))
+	for _, arg := range args {
+		v = append(v, reflect.ValueOf(arg))
+	}
+
+	return Task{
+		handle: f,
+		args:   v,
+	}
 }
 
 func (p *Pool) checkWorker() {
@@ -127,6 +155,18 @@ func (p *Pool) Put(task *Task) error {
 	return nil
 }
 
+// goodFunc reports whether the function or method has the right result signature.
+func goodFunc(typ reflect.Type) bool {
+	// We allow functions with 1 result or 2 results where the second is an error.
+	switch {
+	case typ.NumOut() == 1:
+		return true
+	case typ.NumOut() == 2 && typ.Out(1) == errorType:
+		return true
+	}
+	return false
+}
+
 func (p *Pool) run() {
 	p.incRunning()
 
@@ -154,7 +194,7 @@ func (p *Pool) run() {
 		}()
 
 		for task := range p.chTask {
-			task.Handle(task.Args...)
+			task.handle.Call(task.args)
 		}
 	}()
 
