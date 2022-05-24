@@ -3,7 +3,7 @@
  * @Email:     thepoy@163.com
  * @File Name: pool.go
  * @Created:   2022-05-23 15:31:38
- * @Modified:  2022-05-23 15:45:24
+ * @Modified:  2022-05-24 08:15:20
  */
 
 package pool
@@ -29,10 +29,12 @@ var (
 	ErrUnkownType = errors.New("recover only allows error type, but an unknown type is received")
 )
 
+type Status uint8
+
 // running status
 const (
-	RUNNING = 1
-	STOPED  = 0
+	STOPED Status = iota
+	RUNNING
 )
 
 // Task task to-do
@@ -43,17 +45,22 @@ type Task struct {
 
 // Pool task pool
 type Pool struct {
-	capacity       uint64
-	runningWorkers uint64
-	status         int64
+	capacity       uint32
+	runningWorkers uint32
+	status         Status
 	chTask         chan *Task
 	log            *log.Logger
 	blockPanic     bool
 	sync.Mutex
 }
 
+// Capacity return the capacity of the `Pool`
+func (p *Pool) Capacity() uint32 {
+	return p.capacity
+}
+
 // NewPool init pool
-func NewPool(capacity uint64) (*Pool, error) {
+func NewPool(capacity uint32) (*Pool, error) {
 	if capacity <= 0 {
 		return nil, ErrInvalidPoolCap
 	}
@@ -75,22 +82,17 @@ func (p *Pool) checkWorker() {
 	}
 }
 
-// GetCap get capacity
-func (p *Pool) GetCap() uint64 {
-	return p.capacity
-}
-
 // GetRunningWorkers get running workers
-func (p *Pool) GetRunningWorkers() uint64 {
-	return atomic.LoadUint64(&p.runningWorkers)
+func (p *Pool) GetRunningWorkers() uint32 {
+	return atomic.LoadUint32(&p.runningWorkers)
 }
 
 func (p *Pool) incRunning() {
-	atomic.AddUint64(&p.runningWorkers, 1)
+	atomic.AddUint32(&p.runningWorkers, 1)
 }
 
 func (p *Pool) decRunning() {
-	atomic.AddUint64(&p.runningWorkers, ^uint64(0))
+	atomic.AddUint32(&p.runningWorkers, ^uint32(0))
 }
 
 // Put put a task to pool
@@ -103,7 +105,7 @@ func (p *Pool) Put(task *Task) error {
 	}
 
 	// run worker
-	if p.GetRunningWorkers() < p.GetCap() {
+	if p.GetRunningWorkers() < p.Capacity() {
 		p.run()
 	}
 
@@ -148,7 +150,7 @@ func (p *Pool) run() {
 
 }
 
-func (p *Pool) setStatus(status int64) bool {
+func (p *Pool) setStatus(status Status) bool {
 	p.Lock()
 	defer p.Unlock()
 
