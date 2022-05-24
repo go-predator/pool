@@ -3,7 +3,7 @@
  * @Email:     thepoy@163.com
  * @File Name: pool.go
  * @Created:   2022-05-23 15:31:38
- * @Modified:  2022-05-24 08:15:20
+ * @Modified:  2022-05-24 08:23:34
  */
 
 package pool
@@ -57,6 +57,16 @@ type Pool struct {
 // Capacity return the capacity of the `Pool`
 func (p *Pool) Capacity() uint32 {
 	return p.capacity
+}
+
+// SetLogger sets `logger` for `Pool`
+func (p *Pool) SetLogger(log *log.Logger) {
+	p.log = log
+}
+
+// BlockPanic decides whether to panic when a goroutine throws an exception
+func (p *Pool) BlockPanic(yes bool) {
+	p.blockPanic = yes
 }
 
 // NewPool init pool
